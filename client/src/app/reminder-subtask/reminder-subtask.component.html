@@ -1,0 +1,122 @@
+<header class="page-head">
+  <div>
+    <h1>Reminders &amp; Subtasks</h1>
+    <p>Break big tasks into checklist steps and set date/time reminders.</p>
+  </div>
+  <span class="owner">Reminder &amp; Subtask Management · Lakshmi Pranathi Priya Ega</span>
+</header>
+
+@if (dueNow().length) {
+  <div class="alert info due-banner" role="status">
+    <strong>🔔 {{ dueNow().length }} reminder(s) due</strong>
+    <ul>
+      @for (r of dueNow(); track r._id) {
+        <li>{{ r.text }} — <em>{{ taskTitles().get(r.taskId) ?? 'task' }}</em> ({{ r.remindAt | date: 'MMM d, h:mm a' }})</li>
+      }
+    </ul>
+  </div>
+}
+@if (error()) { <div class="alert error" role="alert">{{ error() }}</div> }
+@if (success()) { <div class="alert success" role="status">{{ success() }}</div> }
+
+<!-- READ: choose the parent task (template-driven [(ngModel)] for comparison) -->
+<div class="card picker">
+  <label for="parent">Parent task</label>
+  <select id="parent" [(ngModel)]="selectedTaskId" (ngModelChange)="loadItems()">
+    @for (t of tasks(); track t._id) { <option [value]="t._id">{{ t.title }}</option> }
+  </select>
+  @if (tasks().length === 0) { <p class="muted">Create a task on the Tasks page first.</p> }
+</div>
+
+@if (selectedTaskId) {
+  <div class="grid-2">
+    <div class="columns">
+      <!-- READ / UPDATE / DELETE: subtasks (checklist) -->
+      <section class="card">
+        <div class="sec-head">
+          <h2>Subtasks</h2>
+          <span class="muted">{{ progress().subtasksDone }} / {{ progress().subtasksTotal }} done</span>
+        </div>
+        <div class="bar" role="progressbar" [attr.aria-valuenow]="progress().percent" aria-valuemin="0" aria-valuemax="100">
+          <span [style.width.%]="progress().percent"></span>
+        </div>
+        <button class="small" type="button" (click)="startNew('subtask')">+ New subtask</button>
+        <ul class="items">
+          @for (s of subtasks(); track s._id) {
+            <li [class.done]="s.completed" [class.editing]="editingId() === s._id">
+              <input type="checkbox" [checked]="s.completed" (change)="toggle(s)" [attr.aria-label]="'Complete ' + s.text">
+              <span class="grow text">{{ s.text }}</span>
+              <button class="small" type="button" (click)="startEdit(s)">Edit</button>
+              <button class="small danger" type="button" (click)="remove(s)">✕</button>
+            </li>
+          } @empty {
+            <li class="muted">No subtasks yet.</li>
+          }
+        </ul>
+      </section>
+
+      <!-- READ / UPDATE / DELETE: reminders -->
+      <section class="card">
+        <div class="sec-head"><h2>Reminders</h2></div>
+        <button class="small" type="button" (click)="startNew('reminder')">+ New reminder</button>
+        <ul class="items">
+          @for (r of reminders(); track r._id) {
+            <li [class.done]="r.completed" [class.editing]="editingId() === r._id">
+              <input type="checkbox" [checked]="r.completed" (change)="toggle(r)" [attr.aria-label]="'Dismiss ' + r.text">
+              <span class="grow">
+                <span class="text">{{ r.text }}</span>
+                <span class="when">⏰ {{ r.remindAt | date: 'EEE, MMM d, h:mm a' }}</span>
+                @if (isDue(r)) { <span class="badge overdue">Due</span> }
+              </span>
+              <button class="small" type="button" (click)="startEdit(r)">Edit</button>
+              <button class="small danger" type="button" (click)="remove(r)">✕</button>
+            </li>
+          } @empty {
+            <li class="muted">No reminders yet.</li>
+          }
+        </ul>
+      </section>
+    </div>
+
+    <!-- CREATE / UPDATE: reactive form ([formGroup] + formControlName) -->
+    <aside class="card form-card">
+      <h2>{{ editingId() ? 'Edit item' : 'New item' }}</h2>
+      <form [formGroup]="itemForm" (ngSubmit)="save()" novalidate>
+        <div class="field">
+          <span class="label">Type</span>
+          <div class="type-toggle">
+            <label class="radio"><input type="radio" formControlName="type" value="subtask"> Subtask</label>
+            <label class="radio"><input type="radio" formControlName="type" value="reminder"> Reminder</label>
+          </div>
+        </div>
+        <div class="field">
+          <label for="itemText">Text *</label>
+          <input id="itemText" formControlName="text" maxlength="200" placeholder="e.g. Write the introduction">
+          @if (itemForm.controls.text.invalid && (itemForm.controls.text.touched || submitted())) {
+            <small class="invalid">Text is required.</small>
+          }
+        </div>
+        @if (isReminder()) {
+          <div class="field">
+            <label for="remindAt">Date and time *</label>
+            <input id="remindAt" type="datetime-local" formControlName="remindAt">
+            @if (itemForm.hasError('remindAtRequired') && submitted()) {
+              <small class="invalid">A reminder needs a date and time.</small>
+            }
+          </div>
+        }
+
+        <!-- Live preview: computed() signal built from the form's value -->
+        <div class="form-preview">
+          <span class="muted">Preview</span>
+          <strong>{{ previewLine() }}</strong>
+        </div>
+
+        <div class="actions">
+          <button class="primary" type="submit" [disabled]="saving()">{{ editingId() ? 'Save changes' : 'Add' }}</button>
+          @if (editingId()) { <button type="button" (click)="cancelEdit()">Cancel</button> }
+        </div>
+      </form>
+    </aside>
+  </div>
+}

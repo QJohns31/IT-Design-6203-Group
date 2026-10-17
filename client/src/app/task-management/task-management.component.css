@@ -1,3 +1,4 @@
+/* Styles used only by the Tasks page (shared styles live in src/styles.css) */
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
 .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; display: flex; flex-direction: column; }
 .stat strong { font-size: 1.5rem; font-weight: 800; }
@@ -17,6 +18,3 @@
 .task-side { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
 .task-side select { width: 150px; }
 .weather-slot { grid-column: 1 / -1; }
-.form-card { position: sticky; top: 20px; }
-.form-card h2 { margin-bottom: 12px; }
-.invalid { color: var(--danger); font-size: .78rem; }

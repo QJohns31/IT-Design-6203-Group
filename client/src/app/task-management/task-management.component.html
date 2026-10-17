@@ -115,29 +115,29 @@
     }
   </section>
 
-  <!-- CREATE / UPDATE form -->
+  <!-- CREATE / UPDATE: reactive form ([formGroup] + formControlName) -->
   <aside class="card form-card">
     <h2>{{ editingId() ? 'Edit task' : 'New task' }}</h2>
-    <form #taskForm="ngForm" (ngSubmit)="save(taskForm)" novalidate>
+    <form [formGroup]="taskForm" (ngSubmit)="save()" novalidate>
       <div class="field">
         <label for="title">Title *</label>
-        <input id="title" name="title" [(ngModel)]="form.title" required maxlength="120" #titleCtrl="ngModel">
-        @if (titleCtrl.invalid && (titleCtrl.touched || taskForm.submitted)) {
+        <input id="title" formControlName="title" maxlength="120">
+        @if (taskForm.controls.title.invalid && (taskForm.controls.title.touched || submitted())) {
           <small class="invalid">Title is required.</small>
         }
       </div>
       <div class="field">
         <label for="description">Description</label>
-        <textarea id="description" name="description" [(ngModel)]="form.description" maxlength="1000"></textarea>
+        <textarea id="description" formControlName="description" maxlength="1000"></textarea>
       </div>
       <div class="row">
         <div class="field">
           <label for="dueDate">Due date</label>
-          <input id="dueDate" name="dueDate" type="date" [(ngModel)]="form.dueDate">
+          <input id="dueDate" type="date" formControlName="dueDate">
         </div>
         <div class="field">
           <label for="priority">Priority</label>
-          <select id="priority" name="priority" [(ngModel)]="form.priority">
+          <select id="priority" formControlName="priority">
             @for (p of priorities; track p) { <option [value]="p">{{ p }}</option> }
           </select>
         </div>
@@ -145,13 +145,13 @@
       <div class="row">
         <div class="field">
           <label for="status">Status</label>
-          <select id="status" name="status" [(ngModel)]="form.status">
+          <select id="status" formControlName="status">
             @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
           </select>
         </div>
         <div class="field">
           <label for="category">Category</label>
-          <select id="category" name="categoryId" [(ngModel)]="form.categoryId">
+          <select id="category" formControlName="categoryId">
             <option value="">— None —</option>
             @for (c of categories(); track c._id) { <option [value]="c._id">{{ c.icon }} {{ c.name }}</option> }
           </select>
@@ -159,11 +159,20 @@
       </div>
       <div class="field">
         <label for="location">Location (city, for the weather forecast)</label>
-        <input id="location" name="location" [(ngModel)]="form.location" placeholder="e.g. Nassau" maxlength="100">
+        <input id="location" formControlName="location" placeholder="e.g. Nassau" maxlength="100">
       </div>
+
+      <!-- Live preview: computed() signals built from the form's value -->
+      <div class="form-preview">
+        <span class="muted">Preview</span>
+        <strong>{{ previewTitle() }}</strong>
+        <span [class]="'badge ' + previewPriority()">{{ previewPriority() }}</span>
+        <span class="muted">{{ formIsValid() ? 'Ready to save' : 'Fill in the required fields' }}</span>
+      </div>
+
       <div class="actions">
         <button class="primary" type="submit" [disabled]="saving()">{{ editingId() ? 'Save changes' : 'Add task' }}</button>
-        @if (editingId()) { <button type="button" (click)="cancelEdit(taskForm)">Cancel</button> }
+        @if (editingId()) { <button type="button" (click)="cancelEdit()">Cancel</button> }
       </div>
     </form>
   </aside>

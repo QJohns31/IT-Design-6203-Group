@@ -1,0 +1,12 @@
+/* Styles used only by the Recurring Tasks page (shared styles live in src/styles.css) */
+.rules { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.rule { display: flex; flex-direction: column; gap: 10px; }
+.rule.paused { opacity: .7; }
+.rule.editing { outline: 2px solid var(--accent); }
+.rule-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.summary { font-weight: 600; color: var(--accent); margin-top: 2px; }
+.next, .more { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.date-chip { background: var(--accent-soft); color: var(--accent); font-size: .78rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+.switch { margin: 6px 0 4px;  display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+.interval { display: flex; align-items: center; gap: 8px; }
+.interval input { width: 80px; }

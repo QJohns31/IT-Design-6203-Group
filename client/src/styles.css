@@ -1,4 +1,13 @@
-/* Global styles shared by every component (team-owned). */
+/* ==========================================================================
+   Task Flow – shared team styles (src/styles.css)
+   Agreed by Group 3 so every component looks the same:
+   - Layout: dark-teal sidebar + content area; pages use .page-head, then a
+     two-column .grid-2 (list on the left, form in a .form-card on the right)
+   - Colours: CSS variables below (teal accent, warm off-white background)
+   - Font: Plus Jakarta Sans; spacing in steps of 4/8/12/16/20 px
+   - Shared parts: cards, buttons, badges, alerts, form fields, form preview
+   Styles used by only one page stay in that component's .css file.
+   ========================================================================== */
 :root {
   --bg: #f7f5f0;
   --surface: #ffffff;
@@ -86,3 +95,12 @@ button.link { border: none; background: none; color: var(--accent); padding: 0; 
 a.btn { display: inline-block; font-weight: 600; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; padding: 8px 14px; }
 a.btn.small { padding: 4px 10px; font-size: .82rem; }
 a.btn:hover { background: var(--surface-2); }
+
+/* ---------- Shared reactive-form styles (used by all four component forms) ---------- */
+.form-card { position: sticky; top: 20px; }
+.form-card h2 { margin-bottom: 12px; }
+.label { display: block; font-size: .8rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 4px; }
+.radio { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ink); margin: 0; font-size: .9rem; }
+.invalid { display: block; color: var(--danger); font-size: .78rem; margin-top: 4px; }
+input.ng-invalid.ng-touched, select.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(--danger); }
+.form-preview { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--surface-2); border-radius: 8px; padding: 10px 12px; margin: 4px 0 14px; }

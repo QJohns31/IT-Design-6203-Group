@@ -1,0 +1,122 @@
+<header class="page-head">
+  <div>
+    <h1>Recurring Tasks</h1>
+    <p>Make tasks repeat daily, weekly or monthly and preview what's coming up.</p>
+  </div>
+  <span class="owner">Recurring Task Management · Deborah Cody</span>
+</header>
+
+@if (error()) { <div class="alert error" role="alert">{{ error() }}</div> }
+@if (success()) { <div class="alert success" role="status">{{ success() }}</div> }
+
+<div class="grid-2">
+  <section>
+    @if (loading()) {
+      <p class="empty">Loading rules…</p>
+    } @else {
+      <ul class="rules">
+        @for (r of rules(); track r._id) {
+          <li class="card rule" [class.paused]="!r.active" [class.editing]="editingId() === r._id">
+            <div class="rule-head">
+              <div>
+                <h3>{{ taskTitles().get(r.taskId) ?? 'Unknown task' }}</h3>
+                <p class="summary">↻ {{ r.summary }} <span class="muted">· from {{ r.startDate | date: 'mediumDate' : 'UTC' }}</span></p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" [checked]="r.active" (change)="toggleActive(r)">
+                {{ r.active ? 'Active' : 'Paused' }}
+              </label>
+            </div>
+
+            <div class="next">
+              <span class="muted">Next:</span>
+              @for (d of r.nextOccurrences ?? []; track d) {
+                <span class="date-chip">{{ d | date: 'EEE, MMM d' : 'UTC' }}</span>
+              } @empty {
+                <span class="muted">{{ r.active ? 'No upcoming dates (series ended).' : 'Paused.' }}</span>
+              }
+            </div>
+
+            @if (expandedId() === r._id) {
+              <div class="more">
+                @for (d of moreDates(); track d) { <span class="date-chip">{{ d | date: 'mediumDate' : 'UTC' }}</span> }
+              </div>
+            }
+
+            <div class="actions">
+              <button class="small" type="button" (click)="showMore(r)">{{ expandedId() === r._id ? 'Hide dates' : 'Next 10 dates' }}</button>
+              <button class="small" type="button" (click)="startEdit(r)">Edit</button>
+              <button class="small danger" type="button" (click)="remove(r)">Delete</button>
+            </div>
+          </li>
+        } @empty {
+          <li class="card empty">No recurring tasks yet. Pick a task and set a schedule.</li>
+        }
+      </ul>
+    }
+  </section>
+
+  <!-- CREATE / UPDATE: reactive form ([formGroup] + formControlName) -->
+  <aside class="card form-card">
+    <h2>{{ editingId() ? 'Edit schedule' : 'New recurrence rule' }}</h2>
+    <form [formGroup]="ruleForm" (ngSubmit)="save()" novalidate>
+      <div class="field">
+        <label for="task">Task *</label>
+        <select id="task" formControlName="taskId">
+          <option value="" disabled>Choose a task…</option>
+          @if (editingId()) {
+            <option [value]="ruleForm.controls.taskId.value">{{ taskTitles().get(ruleForm.controls.taskId.value) ?? '' }}</option>
+          }
+          @for (t of availableTasks(); track t._id) { <option [value]="t._id">{{ t.title }}</option> }
+        </select>
+        @if (ruleForm.controls.taskId.invalid && (ruleForm.controls.taskId.touched || submitted())) {
+          <small class="invalid">Choose a task.</small>
+        }
+        @if (!editingId() && availableTasks().length === 0) { <small class="muted">Every task already has a rule (or there are no tasks).</small> }
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="frequency">Repeats</label>
+          <select id="frequency" formControlName="frequency">
+            @for (f of frequencies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
+          </select>
+        </div>
+        <div class="field">
+          <label for="interval">Every</label>
+          <div class="interval">
+            <input id="interval" type="number" min="1" max="365" formControlName="interval">
+            <span class="muted">{{ unitLabel() }}</span>
+          </div>
+          @if (ruleForm.controls.interval.invalid && (ruleForm.controls.interval.touched || submitted())) {
+            <small class="invalid">Enter a whole number from 1 to 365.</small>
+          }
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="startDate">Starts *</label>
+          <input id="startDate" type="date" formControlName="startDate">
+        </div>
+        <div class="field">
+          <label for="endDate">Ends (optional)</label>
+          <input id="endDate" type="date" formControlName="endDate">
+        </div>
+      </div>
+      @if (ruleForm.hasError('endBeforeStart')) {
+        <small class="invalid">The end date cannot be before the start date.</small>
+      }
+      <label class="switch"><input type="checkbox" formControlName="active"> Active</label>
+
+      <!-- Live preview: computed() signal built from the form's value -->
+      <div class="form-preview">
+        <span class="muted">Preview</span>
+        <strong>↻ {{ previewSummary() }}</strong>
+      </div>
+
+      <div class="actions">
+        <button class="primary" type="submit" [disabled]="saving()">{{ editingId() ? 'Save changes' : 'Create rule' }}</button>
+        @if (editingId()) { <button type="button" (click)="cancelEdit()">Cancel</button> }
+      </div>
+    </form>
+  </aside>
+</div>

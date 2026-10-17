@@ -1,0 +1,121 @@
+<header class="page-head">
+  <div>
+    <h1>Categories &amp; Lists</h1>
+    <p>Group tasks into lists such as Work, Personal or Shopping.</p>
+  </div>
+  <span class="owner">Category &amp; List Management · Aderoju Okunlola</span>
+</header>
+
+@if (error()) { <div class="alert error" role="alert">{{ error() }}</div> }
+@if (success()) { <div class="alert success" role="status">{{ success() }}</div> }
+
+<div class="grid-2">
+  <section>
+    <p class="muted uncat">{{ uncategorizedCount() }} task(s) are not in any category.</p>
+    @if (loading()) {
+      <p class="empty">Loading categories…</p>
+    } @else if (categories().length === 0) {
+      <div class="card empty">No categories yet. Create one with the form.</div>
+    } @else {
+      <div class="cat-grid">
+        @for (c of categories(); track c._id) {
+          <article class="card cat" [style.border-top-color]="c.color" [class.editing]="editingId() === c._id">
+            <div class="cat-head">
+              <span class="icon" [style.background]="c.color">{{ c.icon }}</span>
+              <div>
+                <h3>{{ c.name }}</h3>
+                <span class="muted">{{ c.taskCount ?? 0 }} task(s)</span>
+              </div>
+            </div>
+            @if (c.description) { <p class="desc">{{ c.description }}</p> }
+
+            <div class="actions">
+              <button class="small" type="button" (click)="toggleTasks(c)">{{ expandedId() === c._id ? 'Hide tasks' : 'View tasks' }}</button>
+              <button class="small" type="button" (click)="startEdit(c)">Edit</button>
+              <button class="small danger" type="button" (click)="askDelete(c)">Delete</button>
+            </div>
+
+            @if (expandedId() === c._id) {
+              <ul class="mini-tasks">
+                @for (t of expandedTasks(); track t._id) {
+                  <li>
+                    <span [class.done]="t.status === 'Completed'">{{ t.title }}</span>
+                    <span class="muted">{{ t.dueDate ? (t.dueDate | date: 'MMM d' : 'UTC') : '' }} · {{ t.status }}</span>
+                  </li>
+                } @empty {
+                  <li class="muted">No tasks in this category.</li>
+                }
+              </ul>
+            }
+
+            @if (deletingId() === c._id) {
+              <div class="delete-panel">
+                <strong>Delete “{{ c.name }}”?</strong>
+                @if ((c.taskCount ?? 0) > 0) {
+                  <p class="muted">What should happen to its {{ c.taskCount }} task(s)?</p>
+                  <label class="radio"><input type="radio" name="mode-{{ c._id }}" value="unassign" [(ngModel)]="deleteMode"> Keep them, uncategorized</label>
+                  <label class="radio"><input type="radio" name="mode-{{ c._id }}" value="reassign" [(ngModel)]="deleteMode"> Move them to another category</label>
+                  @if (deleteMode === 'reassign') {
+                    <select [(ngModel)]="reassignTargetId" aria-label="Target category">
+                      <option value="">Choose category…</option>
+                      @for (o of otherCategories(); track o._id) { <option [value]="o._id">{{ o.icon }} {{ o.name }}</option> }
+                    </select>
+                  }
+                  <label class="radio"><input type="radio" name="mode-{{ c._id }}" value="delete" [(ngModel)]="deleteMode"> Delete the tasks too</label>
+                }
+                <div class="actions">
+                  <button class="small danger" type="button" (click)="confirmDelete(c)">Confirm delete</button>
+                  <button class="small" type="button" (click)="deletingId.set(null)">Cancel</button>
+                </div>
+              </div>
+            }
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- CREATE / UPDATE: reactive form ([formGroup] + formControlName) -->
+  <aside class="card form-card">
+    <h2>{{ editingId() ? 'Edit category' : 'New category' }}</h2>
+    <form [formGroup]="categoryForm" (ngSubmit)="save()" novalidate>
+      <div class="field">
+        <label for="name">Name *</label>
+        <input id="name" formControlName="name" maxlength="40">
+        @if (categoryForm.controls.name.invalid && (categoryForm.controls.name.touched || submitted())) {
+          <small class="invalid">Name is required (40 characters max).</small>
+        }
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="color">Colour</label>
+          <input id="color" type="color" formControlName="color">
+        </div>
+        <div class="field">
+          <label for="icon">Icon</label>
+          <input id="icon" formControlName="icon" maxlength="8">
+        </div>
+      </div>
+      <div class="icon-picks">
+        @for (i of iconChoices; track i) {
+          <button type="button" class="pick" [class.on]="previewIcon() === i" (click)="pickIcon(i)">{{ i }}</button>
+        }
+      </div>
+      <div class="field">
+        <label for="cdesc">Description</label>
+        <textarea id="cdesc" formControlName="description" maxlength="300"></textarea>
+      </div>
+
+      <!-- Live preview: computed() signals built from the form's value -->
+      <div class="form-preview">
+        <span class="icon" [style.background]="previewColor()">{{ previewIcon() }}</span>
+        <strong>{{ previewName() }}</strong>
+      </div>
+
+      <div class="actions">
+        <button class="primary" type="submit" [disabled]="saving()">{{ editingId() ? 'Save changes' : 'Add category' }}</button>
+        @if (editingId()) { <button type="button" (click)="cancelEdit()">Cancel</button> }
+      </div>
+    </form>
+  </aside>
+</div>
