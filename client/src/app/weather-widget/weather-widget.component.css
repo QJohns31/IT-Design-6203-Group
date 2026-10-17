@@ -1,0 +1,9 @@
+.weather { background: linear-gradient(160deg, #e6f6f5, #f6fbff); border: 1px solid #cfe7e5; border-radius: 10px; padding: 12px 14px; }
+.head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.today { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+.temp { font-size: 1.5rem; font-weight: 800; }
+.temp span { font-size: 1rem; color: var(--ink-soft); font-weight: 600; }
+.desc { text-transform: capitalize; font-weight: 600; }
+.strip { display: flex; gap: 6px; overflow-x: auto; margin-top: 8px; }
+.day { display: flex; flex-direction: column; align-items: center; font-size: .75rem; padding: 4px 8px; border-radius: 8px; background: rgba(255,255,255,.7); }
+.day.selected { outline: 2px solid var(--accent); }

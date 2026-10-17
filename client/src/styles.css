@@ -1,0 +1,88 @@
+/* Global styles shared by every component (team-owned). */
+:root {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --surface-2: #f1eee7;
+  --ink: #1d2433;
+  --ink-soft: #5b6475;
+  --line: #e4dfd4;
+  --accent: #0e7c86;
+  --accent-ink: #ffffff;
+  --accent-soft: #e0f2f1;
+  --danger: #c2410c;
+  --danger-soft: #fff1e8;
+  --ok: #15803d;
+  --ok-soft: #e8f6ec;
+  --warn: #b45309;
+  --warn-soft: #fff7e0;
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(29, 36, 51, .06), 0 4px 16px rgba(29, 36, 51, .05);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+h1, h2, h3 { margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: 1.6rem; font-weight: 800; }
+h2 { font-size: 1.1rem; font-weight: 700; }
+h3 { font-size: 1rem; font-weight: 700; }
+p { margin: 0; }
+
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.page-head p { color: var(--ink-soft); margin-top: 4px; }
+.owner { font-size: .78rem; color: var(--ink-soft); background: var(--surface-2); padding: 3px 10px; border-radius: 999px; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; }
+.grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; }
+@media (max-width: 960px) { .grid-2 { grid-template-columns: 1fr; } }
+
+label { display: block; font-size: .8rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 4px; }
+input, select, textarea {
+  width: 100%; font: inherit; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+input[type="checkbox"], input[type="radio"] { width: auto; accent-color: var(--accent); }
+input[type="color"] { padding: 2px; height: 38px; }
+textarea { resize: vertical; min-height: 70px; }
+.field { margin-bottom: 12px; }
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; }
+
+button {
+  font: inherit; font-weight: 600; cursor: pointer; border-radius: 8px; padding: 8px 14px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+button:hover { background: var(--surface-2); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button.primary:hover { filter: brightness(1.08); }
+button.danger { color: var(--danger); border-color: #f3c9b3; }
+button.danger:hover { background: var(--danger-soft); }
+button.small { padding: 4px 10px; font-size: .82rem; }
+button.link { border: none; background: none; color: var(--accent); padding: 0; }
+
+.badge { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--ink-soft); white-space: nowrap; }
+.badge.High { background: var(--danger-soft); color: var(--danger); }
+.badge.Medium { background: var(--warn-soft); color: var(--warn); }
+.badge.Low { background: var(--ok-soft); color: var(--ok); }
+.badge.overdue { background: var(--danger); color: #fff; }
+
+.alert { padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: .9rem; }
+.alert.error { background: var(--danger-soft); color: var(--danger); border: 1px solid #f3c9b3; }
+.alert.success { background: var(--ok-soft); color: var(--ok); border: 1px solid #bfe3c9; }
+.alert.info { background: var(--accent-soft); color: var(--accent); border: 1px solid #b6e0dd; }
+
+.empty { text-align: center; color: var(--ink-soft); padding: 32px 12px; }
+.muted { color: var(--ink-soft); font-size: .85rem; }
+.actions { display: flex; gap: 6px; flex-wrap: wrap; }
+a.btn { display: inline-block; font-weight: 600; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; padding: 8px 14px; }
+a.btn.small { padding: 4px 10px; font-size: .82rem; }
+a.btn:hover { background: var(--surface-2); }

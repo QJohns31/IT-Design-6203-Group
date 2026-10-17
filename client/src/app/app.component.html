@@ -1,0 +1,26 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="logo">TF</span>
+      <div>
+        <strong>Task Flow</strong>
+        <small>IT6203 · Group 3</small>
+      </div>
+    </div>
+    <nav>
+      @for (item of nav; track item.path) {
+        <a [routerLink]="item.path" routerLinkActive="active">
+          <span class="icon" aria-hidden="true">{{ item.icon }}</span>
+          <span class="text">
+            {{ item.label }}
+            <small>{{ item.owner }}</small>
+          </span>
+        </a>
+      }
+    </nav>
+    <p class="api-note">Weather by <a href="https://openweathermap.org/" target="_blank" rel="noopener">OpenWeatherMap</a></p>
+  </aside>
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>

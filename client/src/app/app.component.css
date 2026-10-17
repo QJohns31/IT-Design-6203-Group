@@ -1,0 +1,24 @@
+.shell { display: grid; grid-template-columns: 250px 1fr; min-height: 100vh; }
+.sidebar { background: #12343b; color: #e8f1f0; padding: 22px 14px; display: flex; flex-direction: column; gap: 22px; position: sticky; top: 0; height: 100vh; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
+.brand strong { display: block; font-size: 1.1rem; }
+.brand small { color: #9fbfbd; font-size: .75rem; }
+.logo { width: 38px; height: 38px; border-radius: 10px; background: #2ec4b6; color: #12343b; display: grid; place-items: center; font-weight: 800; }
+nav { display: flex; flex-direction: column; gap: 4px; }
+nav a { display: flex; gap: 10px; align-items: center; color: #d4e4e2; text-decoration: none; padding: 9px 10px; border-radius: 10px; }
+nav a:hover { background: rgba(255,255,255,.07); }
+nav a.active { background: #2ec4b6; color: #0b2227; }
+nav a.active small { color: #12434a; }
+.icon { width: 22px; text-align: center; }
+.text { display: flex; flex-direction: column; font-weight: 600; font-size: .92rem; line-height: 1.2; }
+.text small { font-weight: 500; font-size: .72rem; color: #8fb0ae; margin-top: 2px; }
+.api-note { margin-top: auto; font-size: .75rem; color: #8fb0ae; padding: 0 8px; }
+.api-note a { color: #bfe9e4; }
+.content { padding: 28px 32px; max-width: 1240px; width: 100%; }
+@media (max-width: 760px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; }
+  nav { flex-direction: row; overflow-x: auto; }
+  nav a small, .api-note { display: none; }
+  .content { padding: 18px 16px; }
+}

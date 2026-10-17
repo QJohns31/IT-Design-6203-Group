@@ -1,0 +1,35 @@
+<div class="weather">
+  @if (loading()) {
+    <p class="muted">Loading forecast for {{ city }}…</p>
+  } @else if (error()) {
+    <p class="alert error">{{ error() }}</p>
+  } @else if (weather(); as w) {
+    <div class="head">
+      <strong>{{ w.city }}{{ w.country ? ', ' + w.country : '' }}</strong>
+      <span class="muted">OpenWeatherMap forecast</span>
+    </div>
+    @if (w.forecast; as f) {
+      <div class="today">
+        @if (f.iconUrl) { <img [src]="f.iconUrl" [alt]="f.description" width="64" height="64"> }
+        <div>
+          <div class="temp">{{ f.tempMax }}{{ unitSymbol }} <span>/ {{ f.tempMin }}{{ unitSymbol }}</span></div>
+          <div class="desc">{{ f.description }} · {{ f.date | date: 'EEE, MMM d' }}</div>
+          <div class="muted">Rain chance {{ f.chanceOfRain }}% · Humidity {{ f.humidity }}%</div>
+        </div>
+      </div>
+    } @else {
+      <p class="alert info">{{ w.message }}</p>
+    }
+    @if (w.days.length) {
+      <div class="strip">
+        @for (d of w.days; track d.date) {
+          <div class="day" [class.selected]="d.date === w.forecast?.date">
+            <span>{{ d.date | date: 'EEE' }}</span>
+            @if (d.iconUrl) { <img [src]="d.iconUrl" [alt]="d.main" width="36" height="36"> }
+            <span>{{ d.tempMax }}°</span>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

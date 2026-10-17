@@ -1,0 +1,23 @@
+{
+  "name": "taskflow-server",
+  "version": "1.0.0",
+  "description": "Task Flow - Express/Node.js REST API backed by MongoDB (IT6203 Group 3)",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node seed.js",
+    "test": "node --test --test-reporter=spec \"tests/**/*.test.js\"",
+    "test:unit": "node --test --test-reporter=spec \"tests/unit/*.test.js\"",
+    "test:integration": "node --test --test-reporter=spec \"tests/integration/*.test.js\""
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.0"
+  }
+}

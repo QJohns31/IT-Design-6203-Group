@@ -1,0 +1,170 @@
+<header class="page-head">
+  <div>
+    <h1>Tasks</h1>
+    <p>Create, organise and track everything you need to get done.</p>
+  </div>
+  <span class="owner">Task Management · Quzhan Johnson</span>
+</header>
+
+<div class="stats">
+  <div class="stat"><strong>{{ counts().Pending }}</strong><span>Pending</span></div>
+  <div class="stat"><strong>{{ counts()['In Progress'] }}</strong><span>In progress</span></div>
+  <div class="stat"><strong>{{ counts().Completed }}</strong><span>Completed</span></div>
+  <div class="stat"><strong>{{ tasks().length }}</strong><span>Shown</span></div>
+</div>
+
+@if (error()) { <div class="alert error" role="alert">{{ error() }}</div> }
+@if (success()) { <div class="alert success" role="status">{{ success() }}</div> }
+
+<div class="grid-2">
+  <section>
+    <!-- READ: search, filter and sort -->
+    <div class="card filters">
+      <div class="field search">
+        <label for="search">Search</label>
+        <input id="search" type="search" placeholder="Title or description…" [(ngModel)]="filters.search" (ngModelChange)="loadTasks()">
+      </div>
+      <div class="field">
+        <label for="fCategory">Category</label>
+        <select id="fCategory" [(ngModel)]="filters.categoryId" (ngModelChange)="loadTasks()">
+          <option value="">All</option>
+          <option value="none">Uncategorized</option>
+          @for (c of categories(); track c._id) { <option [value]="c._id">{{ c.icon }} {{ c.name }}</option> }
+        </select>
+      </div>
+      <div class="field">
+        <label for="fPriority">Priority</label>
+        <select id="fPriority" [(ngModel)]="filters.priority" (ngModelChange)="loadTasks()">
+          <option value="">All</option>
+          @for (p of priorities; track p) { <option [value]="p">{{ p }}</option> }
+        </select>
+      </div>
+      <div class="field">
+        <label for="fStatus">Status</label>
+        <select id="fStatus" [(ngModel)]="filters.status" (ngModelChange)="loadTasks()">
+          <option value="">All</option>
+          @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
+        </select>
+      </div>
+      <div class="field">
+        <label for="fFrom">Due from</label>
+        <input id="fFrom" type="date" [(ngModel)]="filters.dueFrom" (ngModelChange)="loadTasks()">
+      </div>
+      <div class="field">
+        <label for="fTo">Due to</label>
+        <input id="fTo" type="date" [(ngModel)]="filters.dueTo" (ngModelChange)="loadTasks()">
+      </div>
+      <div class="field">
+        <label for="fSort">Sort by</label>
+        <select id="fSort" [(ngModel)]="filters.sort" (ngModelChange)="loadTasks()">
+          <option value="dueDate">Due date</option>
+          <option value="priority">Priority</option>
+          <option value="title">Title</option>
+          <option value="createdAt">Newest</option>
+        </select>
+      </div>
+      <button class="small clear" type="button" (click)="clearFilters()">Clear</button>
+    </div>
+
+    @if (loading()) {
+      <p class="empty">Loading tasks…</p>
+    } @else if (tasks().length === 0) {
+      <div class="card empty">No tasks match. Add your first task with the form.</div>
+    } @else {
+      <ul class="task-list">
+        @for (t of tasks(); track t._id) {
+          <li class="card task" [class.done]="t.status === 'Completed'" [class.editing]="editingId() === t._id">
+            <div class="task-main">
+              <div class="title-row">
+                <h3>{{ t.title }}</h3>
+                <span [class]="'badge ' + t.priority">{{ t.priority }}</span>
+                @if (isOverdue(t)) { <span class="badge overdue">Overdue</span> }
+              </div>
+              @if (t.description) { <p class="desc">{{ t.description }}</p> }
+              <div class="meta">
+                @if (categoryOf(t); as cat) {
+                  <span class="chip" [style.background]="cat.color + '22'" [style.color]="cat.color">{{ cat.icon }} {{ cat.name }}</span>
+                } @else {
+                  <span class="chip">Uncategorized</span>
+                }
+                @if (t.dueDate) { <span>📅 {{ t.dueDate | date: 'mediumDate' : 'UTC' }} · {{ dueLabel(t) }}</span> }
+                @if (t.location) { <span>📍 {{ t.location }}</span> }
+              </div>
+            </div>
+            <div class="task-side">
+              <select [ngModel]="t.status" (ngModelChange)="changeStatus(t, $event)" [attr.aria-label]="'Status of ' + t.title">
+                @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
+              </select>
+              <div class="actions">
+                @if (canShowWeather(t)) {
+                  <button class="small" type="button" (click)="toggleWeather(t)">☀ Weather</button>
+                }
+                <a class="btn small" routerLink="/reminders" [queryParams]="{ taskId: t._id }">Checklist</a>
+                <button class="small" type="button" (click)="startEdit(t)">Edit</button>
+                <button class="small danger" type="button" (click)="deleteTask(t)">Delete</button>
+              </div>
+            </div>
+            @if (weatherTaskId() === t._id) {
+              <div class="weather-slot">
+                <app-weather-widget [city]="t.location" [date]="t.dueDate ? t.dueDate.slice(0, 10) : ''" />
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <!-- CREATE / UPDATE form -->
+  <aside class="card form-card">
+    <h2>{{ editingId() ? 'Edit task' : 'New task' }}</h2>
+    <form #taskForm="ngForm" (ngSubmit)="save(taskForm)" novalidate>
+      <div class="field">
+        <label for="title">Title *</label>
+        <input id="title" name="title" [(ngModel)]="form.title" required maxlength="120" #titleCtrl="ngModel">
+        @if (titleCtrl.invalid && (titleCtrl.touched || taskForm.submitted)) {
+          <small class="invalid">Title is required.</small>
+        }
+      </div>
+      <div class="field">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" [(ngModel)]="form.description" maxlength="1000"></textarea>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="dueDate">Due date</label>
+          <input id="dueDate" name="dueDate" type="date" [(ngModel)]="form.dueDate">
+        </div>
+        <div class="field">
+          <label for="priority">Priority</label>
+          <select id="priority" name="priority" [(ngModel)]="form.priority">
+            @for (p of priorities; track p) { <option [value]="p">{{ p }}</option> }
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="status">Status</label>
+          <select id="status" name="status" [(ngModel)]="form.status">
+            @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
+          </select>
+        </div>
+        <div class="field">
+          <label for="category">Category</label>
+          <select id="category" name="categoryId" [(ngModel)]="form.categoryId">
+            <option value="">— None —</option>
+            @for (c of categories(); track c._id) { <option [value]="c._id">{{ c.icon }} {{ c.name }}</option> }
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="location">Location (city, for the weather forecast)</label>
+        <input id="location" name="location" [(ngModel)]="form.location" placeholder="e.g. Nassau" maxlength="100">
+      </div>
+      <div class="actions">
+        <button class="primary" type="submit" [disabled]="saving()">{{ editingId() ? 'Save changes' : 'Add task' }}</button>
+        @if (editingId()) { <button type="button" (click)="cancelEdit(taskForm)">Cancel</button> }
+      </div>
+    </form>
+  </aside>
+</div>
